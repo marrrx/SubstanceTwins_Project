@@ -18,8 +18,8 @@ export default function Index() {
     <>
       <br />
       <div className="container mt-5">
-        <h1 class>{actualCategory.name}</h1>
-        <h4 class>Choose the products you want add to the cart.</h4>
+        <h1 >{actualCategory.name}</h1>
+        <h4 >Choose the products you want add to the cart.</h4>
 
         <div className="row row-cols-3">
           {products.map(products => (

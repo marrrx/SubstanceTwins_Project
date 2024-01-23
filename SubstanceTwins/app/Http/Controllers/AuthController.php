@@ -8,15 +8,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Bridge\AccessToken;
+use Laravel\Passport\Passport;
 
 class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        //validar los registros
+        //validate data
         $data = $request->validated();
 
-        //crear usuario
+        //create user
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -24,34 +25,44 @@ class AuthController extends Controller
 
         ]);
 
-        //crear token
+        //create token
         $accessToken = $user->createToken('authToken')->accessToken;
-
-        //Retornar respuesta
-        return [
+ 
+        //return respose
+        return ([
             'user' => $user,
             'access_token' => $accessToken
-        ];
+        ]);
 
     }
     public function login(LoginRequest $request)
     {
         $data = $request->validated();
 
-        if (!Auth::attempt($data)) {
-            return response(['errors'], 422);
-        }
-        //autenticar usuario
-        $user = Auth::user();
-        $accessToken = $request->user()->createToken('authToken')->plainTextToken; 
-        return [
-            'access_token' => $accessToken,
-            'user' => $user
-        ];
+        if (Auth::attempt($data)) {
+            $user = User::find(Auth::user()->id);
 
-    }   
+            $accessToken = $user->createToken('appToken')->accessToken;
+
+            return ([
+                'user' => $user,
+                'token' => $accessToken
+            ]);
+        } else {
+            // failure to authenticate
+            return ([
+                'message' => 'Failed to authenticate.'
+            ]);
+        }
+    }
+
     public function logout(Request $request)
     {
+        auth()->user()->tokens->each(function ($token) {
+            $token->delete();
+        });
 
+        return response(['message' => 'Tokens revocados']);
     }
+
 }
