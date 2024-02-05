@@ -27,42 +27,42 @@ class AuthController extends Controller
 
         //create token
         $accessToken = $user->createToken('authToken')->accessToken;
- 
+
         //return respose
         return ([
             'user' => $user,
-            'access_token' => $accessToken
+            'token ' => $accessToken
         ]);
-
+ 
     }
     public function login(LoginRequest $request)
     {
         $data = $request->validated();
 
-        if (Auth::attempt($data)) {
+        if (!Auth::attempt($data)) {
+            return response([
+                'errors' => ['Email or password was incorrect']
+            ], 422);
+        } else {
             $user = User::find(Auth::user()->id);
 
             $accessToken = $user->createToken('appToken')->accessToken;
 
             return ([
                 'user' => $user,
-                'token' => $accessToken
-            ]);
-        } else {
-            // failure to authenticate
-            return ([
-                'message' => 'Failed to authenticate.'
+                'accessToken' => $accessToken
             ]);
         }
     }
 
     public function logout(Request $request)
     {
-        auth()->user()->tokens->each(function ($token) {
-            $token->delete();
-        });
+        $user = $request->user();
+        $user->currentAccessToken()->delete();
 
-        return response(['message' => 'Tokens revocados']);
+        return [
+            'user' => null
+        ];
     }
 
 }

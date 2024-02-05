@@ -12,6 +12,7 @@ export default function Register() {
     const passwordConfirmationRef = createRef();
     const [errors, setErrors] = useState([]);
 
+
     const handleSubmit = async e => {
         e.preventDefault();
 
@@ -23,13 +24,13 @@ export default function Register() {
         }
 
         try {
-            const respuesta = await clientAxios.post('/api/register',datos)
-            console.log(respuesta)
+            const response = await clientAxios.post('/api/register',datos)
 
         } catch (error) {
             setErrors(Object.values(error.response.data.errors))
         }
     }
+
     return (
         <>
 
